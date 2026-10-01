@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brawl Stars - Halloween Edition</title>
+    <style>
+        /* Подключаем жирный игровой шрифт */
+        @import url('https://googleapis.com');
+
+        :root {
+            --brawl-yellow: #ffcc00;
+            --brawl-blue: #0099ff;
+            --brawl-purple: #8e44ad;
+            --brawl-stroke: #000;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Lilita One', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Хэллоуинский задний фон */
+        .background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://unsplash.com') center/cover no-repeat;
+            filter: brightness(0.6) contrast(1.1);
+            z-index: -1;
+        }
+
+        /* Главный экран */
+        .game-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        /* Верхняя панель (Кубки и ресурсы) */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .trophy-road {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #fff;
+            border-radius: 30px;
+            padding: 5px 20px;
+            box-shadow: 0 5px 0 #000;
+        }
+
+        .trophy-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .trophy-count {
+            color: #fff;
+            font-size: 24px;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+        }
+
+        /* Левое боковое меню (Бойцы и Магазин) */
+        .left-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: absolute;
+            left: 20px;
+            top: 35%;
+        }
+
+        /* Стилизация фирменных кнопок Brawl Stars */
+        .brawl-btn {
+            text-transform: uppercase;
+            font-family: 'Lilita One', sans-serif;
+            font-size: 22px;
+            color: #fff;
+            padding: 12px 30px;
+            border: 4px solid var(--brawl-stroke);
+            border-radius: 12px;
+            cursor: pointer;
+            transform: skewX(-10deg); /* Эффект скошенности кнопок */
+            text-shadow: 2px 2px 0 #000;
+            box-shadow: 0 6px 0 #000;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .brawl-btn:active {
+            transform: skewX(-10deg) translateY(4px);
+            box-shadow: 0 2px 0 #000;
+        }
+
+        .btn-purple { background: linear-gradient(#b159ff, #7622c4); }
+        .btn-blue { background: linear-gradient(#33b5ff, #0066cc); }
+        
+        /* Центральная кнопка ИГРАТЬ */
+        .bottom-bar {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .play-btn {
+            background: linear-gradient(#ffe033, #e68a00);
+            color: #fff;
+            font-size: 36px;
+            padding: 15px 80px;
+            border: 5px solid #000;
+            border-radius: 15px;
+            cursor: pointer;
+            transform: skewX(-10deg);
+            text-shadow: 4px 4px 0 #000;
+            box-shadow: 0 8px 0 #000;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .play-btn:active {
+            transform: skewX(-10deg) translateY(6px);
+            box-shadow: 0 2px 0 #000;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: skewX(-10deg) scale(1); }
+            50% { transform: skewX(-10deg) scale(1.03); }
+        }
+
+        /* Всплывающие окна (Модалки) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background: #1c1a24;
+            border: 5px solid var(--brawl-yellow);
+            border-radius: 20px;
+            padding: 30px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 0 #000;
+            position: relative;
+        }
+
+        .modal-title {
+            color: var(--brawl-yellow);
+            font-size: 32px;
+            margin-top: 0;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #ff3333;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .grid-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .box-item {
+            background: #2c253b;
+            border: 3px solid #000;
+            border-radius: 10px;
+            padding: 15px;
+            color: #fff;
+        }
+
+        /* Эффект выигрыша кубков */
+        .win-alert {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #238636;
+            border: 4px solid #fff;
+            color: white;
+            padding: 15px 30px;
+            font-size: 28px;
+            border-radius: 10px;
+            box-shadow: 0 5px 0 #000;
+            display: none;
+            z-index: 5;
+            text-shadow: 2px 2px 0 #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <!-- Всплывающий алерт победы -->
+    <div class="win-alert" id="winAlert">ПОБЕДА! +8 🏆</div>
+
+    <div class="game-screen">
+        <!-- Верх: Кубки -->
+        <div class="top-bar">
+            <div class="trophy-road">
+                <span class="trophy-icon">🏆</span>
+                <span class="trophy-count" id="trophyDisplay">0</span>
+            </div>
+        </div>
+
+        <!-- Лево: Кнопки Бойцы и Магазин -->
+        <div class="left-menu">
+            <button class="brawl-btn btn-purple" onclick="openModal('shopModal')">Магазин</button>
+            <button class="brawl-btn btn-blue" onclick="openModal('brawlersModal')">Бойцы</button>
+        </div>
+
+        <!-- Низ: Играть -->
+        <div class="bottom-bar">
+            <button class="play-btn" onclick="playMatch()">ИГРАТЬ</button>
+        </div>
+    </div>
+
+    <!-- Окно: Магазин -->
+    <div class="modal" id="shopModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('shopModal')">&times;</span>
+            <h2 class="modal-title">АКЦИИ ХЭЛЛОУИНА</h2>
+            <div class="grid-items">
+                <div class="box-item" style="border-color: #ff5500;">🎃 Тыквенный Ящик<br><span style="color:#ffcc00">30 Гемов</span></div>
+                <div class="box-item" style="border-color: var(--brawl-purple);">🔮 Мегаящик Тьмы<br><span style="color:#ffcc00">80 Гемов</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно: Бойцы -->
+    <div class="modal" id="brawlersModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('brawlersModal')">&times;</span>
+            <h2 class="modal-title">ВАШИ БОЙЦЫ</h2>
+            <div class="grid-items">
+                <div class="box-item">🧟 Шелли (Ведьма)<br>Сила 11</div>
+                <div class="box-item">🦇 Мортис<br>Сила 9</div>
+                <div class="box-item">👻 Поко (Скелет)<br>Сила 10</div>
+                <div class="box-item">🤖 Рико<br>Сила 8</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация кубков (загрузка из памяти браузера, если играли раньше)
+        let trophies = localStorage.getItem('brawl_trophies') ? parseInt(localStorage.getItem('brawl_trophies')) : 0;
+        document.getElementById('trophyDisplay').textContent = trophies;
+
+        // Функция нажатия "ИГРАТЬ"
+        function playMatch() {
+            // Прибавляем 8 кубков за победу
+            trophies += 8;
+            document.getElementById('trophyDisplay').textContent = trophies;
+            
+            // Сохраняем в локальную память, чтобы кубки работали и после перезагрузки
+            localStorage.setItem('brawl_trophies', trophies);
+
+            // Показываем красивое уведомление о победе
+            let alertBox = document.getElementById('winAlert');
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 1500);
+        }
+
+        // Логика открытия и закрытия окон
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Закрытие модального окна по клику вне его контента
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
